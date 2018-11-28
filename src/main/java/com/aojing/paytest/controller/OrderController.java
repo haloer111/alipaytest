@@ -28,6 +28,7 @@ import org.springframework.beans.factory.config.AutowireCapableBeanFactory;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -124,8 +125,22 @@ public class OrderController {
      */
     @RequestMapping("query.do")
     @ResponseBody
+    @Deprecated
     public ServerResponse<Map<String, Object>> query(QueryOrder queryOrder) {
         return ServerResponse.createBySuccess(service.query(queryOrder.getTradeNo(), queryOrder.getOutTradeNo()));
+    }
+
+    /**
+     * 通用查询接口，根据 AliTransactionType 类型进行实现,此接口不包括退款
+     *
+     * @param order 订单的请求体
+     * @return 返回支付方对应接口的结果
+     */
+    @RequestMapping("secondaryInterface")
+    @ResponseBody
+    public Map<String, Object> secondaryInterface(QueryOrder order) {
+        TransactionType type = AliTransactionType.valueOf(order.getTransactionType());
+        return service.secondaryInterface(order.getTradeNoOrBillDate(), order.getOutTradeNoBillType(), type);
     }
 
     /**
@@ -136,11 +151,14 @@ public class OrderController {
      */
     @RequestMapping("close")
     public Map<String, Object> close(QueryOrder order) {
+
+
+
         return service.close(order.getTradeNo(), order.getOutTradeNo());
     }
 
     /**
-     * 交易c撤销接口
+     * 交易撤销接口
      *
      * @param order 订单的请求体
      * @return 返回支付方交易关闭后的结果
@@ -156,9 +174,27 @@ public class OrderController {
      * @param order 订单的请求体
      * @return 返回支付方申请退款后的结果
      */
-    @RequestMapping("refund")
-    public Map<String, Object> refund(RefundOrder order) {
-        return service.refund(order);
+    @RequestMapping("refund.do")
+    @ResponseBody
+    public Map<String, Object> refund() {
+        //todo[支付宝退款] 1.前台传支付宝流水号(tradeNo).商品id(outTradeNo
+        //1. 校验数据
+        //2. 进行退款操作
+        //3. 将退款信息写入数据库
+        RefundOrder refundOrder = new RefundOrder();
+        refundOrder.setRefundNo("1555333221");
+        refundOrder.setTradeNo("2018112822001412710500531258");
+        refundOrder.setOutTradeNo("1492091089753");
+        refundOrder.setRefundAmount(new BigDecimal("0.01"));
+        refundOrder.setTotalAmount(new BigDecimal("0.01"));
+        refundOrder.setOrderDate(new Date());
+        refundOrder.setCurType(CurType.CNY);
+        refundOrder.setDescription("葛潇测试退款");
+
+        Map result = service.refund(refundOrder);
+        log.info("[支付宝退款] 结果:{}",result);
+
+        return result;
     }
 
     /**
@@ -167,8 +203,9 @@ public class OrderController {
      * @param refundOrder 订单的请求体
      * @return 返回支付方查询退款后的结果
      */
-    @RequestMapping("refundquery")
-    public Map<String, Object> refundquery(RefundOrder refundOrder) {
+    @RequestMapping(value = "refund_query.do",method = RequestMethod.POST)
+    @ResponseBody
+    public Map<String, Object> refundQuery(RefundOrder refundOrder) {
         return service.refundquery(refundOrder);
     }
 
