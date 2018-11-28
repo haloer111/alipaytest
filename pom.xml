@@ -123,6 +123,19 @@
                 </configuration>
             </plugin>
         </plugins>
+
+
+
+     <!--   <resources>
+            <resource>
+                <directory>src/main/java</directory>&lt;!&ndash;所在的目录&ndash;&gt;
+                <includes>&lt;!&ndash;包括目录下的.properties,.xml文件都会扫描到&ndash;&gt;
+                    <include>**/*.properties</include>
+                    <include>**/*.xml</include>
+                </includes>
+                <filtering>false</filtering>
+            </resource>
+        </resources>-->
     </build>
 
 

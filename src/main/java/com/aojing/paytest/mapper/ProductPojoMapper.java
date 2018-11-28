@@ -4,7 +4,6 @@ import com.aojing.paytest.pojo.ProductPojo;
 import com.aojing.paytest.pojo.ProductPojoWithBLOBs;
 import org.apache.ibatis.annotations.Mapper;
 
-import java.util.List;
 @Mapper
 public interface ProductPojoMapper {
     int deleteByPrimaryKey(Integer id);
@@ -14,7 +13,6 @@ public interface ProductPojoMapper {
     int insertSelective(ProductPojoWithBLOBs record);
 
     ProductPojoWithBLOBs selectByPrimaryKey(Integer id);
-    List<ProductPojoWithBLOBs> selectAll();
 
     int updateByPrimaryKeySelective(ProductPojoWithBLOBs record);
 

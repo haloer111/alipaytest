@@ -1,8 +1,17 @@
 package com.aojing.paytest.controller;
+
+import com.alipay.api.AlipayApiException;
+import com.alipay.api.internal.util.AlipaySignature;
+import com.aojing.paytest.common.ServerResponse;
+import com.aojing.paytest.form.QueryOrder;
 import com.aojing.paytest.handler.AliPayMessageHandler;
 import com.aojing.paytest.interceptor.AliPayMessageInterceptor;
+import com.aojing.paytest.service.OrderService;
+import com.egzosn.pay.common.bean.RefundOrder;
 import com.egzosn.pay.common.bean.TransactionType;
+
 import java.util.Date;
+
 import com.egzosn.pay.common.bean.CurType;
 
 import com.aojing.paytest.config.ZfbInfoProperties;
@@ -46,6 +55,10 @@ public class OrderController {
     private PayService service = null;
     @Autowired
     ZfbInfoProperties zfbInfoProperties;
+
+    @Autowired
+    OrderService orderService;
+
     @Resource
     private AutowireCapableBeanFactory spring;
 
@@ -73,54 +86,145 @@ public class OrderController {
         httpConfigStorage.setDefaultMaxPerRoute(10);
         service = new AliPayService(aliPayConfigStorage, httpConfigStorage);
         //增加支付回调消息拦截器
-          service.addPayMessageInterceptor(new AliPayMessageInterceptor());
+        service.addPayMessageInterceptor(new AliPayMessageInterceptor());
         //设置回调消息处理
-          service.setPayMessageHandler(spring.getBean(AliPayMessageHandler.class));
+        service.setPayMessageHandler(spring.getBean(AliPayMessageHandler.class));
     }
 
     /**
      * 获取二维码图像
      * 二维码支付
-     * @param price       金额
+     *
      * @return 二维码图像
      */
     @RequestMapping(value = "toQrPay.do", produces = "image/jpeg;charset=UTF-8")
     @ResponseBody
-    public byte[] toAliQrPay(  ) throws IOException {
+    public byte[] toAliQrPay() throws IOException {
         //获取对应的支付账户操作工具（可根据账户id）
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
-         PayOrder payOrder = new PayOrder();
-         payOrder.setSubject("葛潇订单title");
-         payOrder.setBody("葛潇测试");
-         payOrder.setPrice(new BigDecimal("0.01"));
-         payOrder.setOutTradeNo(System.currentTimeMillis()+"");
-         payOrder.setTransactionType(AliTransactionType.SWEEPPAY);
-       // PayOrder payOrder = new PayOrder("订单title", "摘要", new BigDecimal(0.01) , UUID.randomUUID().toString().replace("-", ""));
+        //todo 进行数据库查询,根据userId,orderId查询 order
+        PayOrder payOrder = new PayOrder();
+        payOrder.setSubject("葛潇订单title");
+        payOrder.setBody("葛潇测试");
+        payOrder.setPrice(new BigDecimal("0.01"));
+        payOrder.setOutTradeNo("1492091089753");
         payOrder.setTransactionType(AliTransactionType.SWEEPPAY);
 
         ImageIO.write(service.genQrPay(
-                payOrder ), "JPEG", baos);
+                payOrder), "JPEG", baos);
         return baos.toByteArray();
     }
 
+
+    /**
+     * 查询
+     *
+     * @param queryOrder 订单的请求体
+     * @return 返回查询回来的结果集，支付方原值返回
+     */
+    @RequestMapping("query.do")
+    @ResponseBody
+    public ServerResponse<Map<String, Object>> query(QueryOrder queryOrder) {
+        return ServerResponse.createBySuccess(service.query(queryOrder.getTradeNo(), queryOrder.getOutTradeNo()));
+    }
+
+    /**
+     * 交易关闭接口
+     *
+     * @param order 订单的请求体
+     * @return 返回支付方交易关闭后的结果
+     */
+    @RequestMapping("close")
+    public Map<String, Object> close(QueryOrder order) {
+        return service.close(order.getTradeNo(), order.getOutTradeNo());
+    }
+
+    /**
+     * 交易c撤销接口
+     *
+     * @param order 订单的请求体
+     * @return 返回支付方交易关闭后的结果
+     */
+    @RequestMapping("cancel")
+    public Map<String, Object> cancel(QueryOrder order) {
+        return service.cancel(order.getTradeNo(), order.getOutTradeNo());
+    }
+
+    /**
+     * 申请退款接口
+     *
+     * @param order 订单的请求体
+     * @return 返回支付方申请退款后的结果
+     */
+    @RequestMapping("refund")
+    public Map<String, Object> refund(RefundOrder order) {
+        return service.refund(order);
+    }
+
+    /**
+     * 查询退款
+     *
+     * @param refundOrder 订单的请求体
+     * @return 返回支付方查询退款后的结果
+     */
+    @RequestMapping("refundquery")
+    public Map<String, Object> refundquery(RefundOrder refundOrder) {
+        return service.refundquery(refundOrder);
+    }
 
 
     /**
      * 支付回调地址
      *
      * @param request 请求
-     *
      * @return 返回对应的响应码
-     *
-     * 业务处理在对应的PayMessageHandler里面处理，在哪里设置PayMessageHandler，详情查看{@link com.egzosn.pay.common.api.PayService#setPayMessageHandler(com.egzosn.pay.common.api.PayMessageHandler)}
-     *
-     * 如果未设置 {@link com.egzosn.pay.common.api.PayMessageHandler} 那么会使用默认的 {@link com.egzosn.pay.common.api.DefaultPayMessageHandler}
-     *
+     * <p>
+     * 业务处理在对应的PayMessageHandler里面处理，在哪里设置PayMessageHandler
+     * ，详情查看
+     * {@link com.egzosn.pay.common.api.PayService#setPayMessageHandler(com.egzosn.pay.common.api.PayMessageHandler)}
+     * <p>
+     * 如果未设置 {@link com.egzosn.pay.common.api.PayMessageHandler} 那么会使用默认的
+     * {@link com.egzosn.pay.common.api.DefaultPayMessageHandler}
      */
     @RequestMapping(value = "alipay_callback.do")
     @ResponseBody
     public String payBack(HttpServletRequest request) throws IOException {
-        //业务处理在对应的PayMessageHandler里面处理，在哪里设置PayMessageHandler，详情查看com.egzosn.pay.common.api.PayService.setPayMessageHandler()
-        return service.payBack(request.getParameterMap(), request.getInputStream()).toMessage();
+        //业务处理在对应的PayMessageHandler里面处理，在哪里设置PayMessageHandler，详情查看com.egzosn.pay.common.api.PayService
+        // .setPayMessageHandler()
+        // return service.payBack(request.getParameterMap(), request.getInputStream()).toMessage();
+
+
+        //获取支付方返回的对应参数
+        Map<String, String> params = service.getParameter2Map(request.getParameterMap(), request.getInputStream());
+        if (null == params) {
+            return service.getPayOutMessage("fail", "失败").toMessage();
+        }
+
+        log.info("支付宝回调,sign:{},trade_status:{},参数:{}", params.get("sign"), params.get("trade_status"),
+                params.toString());
+
+        //校验
+        params.remove("sign_type");
+        try {
+            boolean alipayRSACheckedV2 = AlipaySignature.rsaCheckV2(params, zfbInfoProperties.getAlipay_public_key(),
+                    "utf-8", zfbInfoProperties.getSign_type());
+            log.info("[支付宝回调] RSA校验:{}", alipayRSACheckedV2);
+            if (alipayRSACheckedV2) {
+                //这里处理业务逻辑
+                //......业务逻辑处理块........
+                ServerResponse serverResponse = orderService.aliCallback(params);
+                if (serverResponse.isSuccess()) {
+                    return "success";
+                }
+
+            }
+        } catch (AlipayApiException e) {
+            log.error("[支付宝回调] RSA校验失败,params={}", params);
+        }
+
+        return service.getPayOutMessage("fail", "失败").toMessage();
+
     }
+
+
 }

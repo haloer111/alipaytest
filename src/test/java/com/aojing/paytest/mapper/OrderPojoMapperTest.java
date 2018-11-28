@@ -45,4 +45,14 @@ public class OrderPojoMapperTest {
     @Test
     public void updateByPrimaryKey() {
     }
+
+    @Test
+    public void selectByOrderNo() {
+        OrderPojo orderPojo = orderPojoMapper.selectByOrderNo(new Long("1492091096457"));
+        Assert.assertNotNull(orderPojo);
+
+    }
+
+
+
 }
