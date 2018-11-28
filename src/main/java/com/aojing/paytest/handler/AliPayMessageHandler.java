@@ -1,17 +1,14 @@
 package com.aojing.paytest.handler;
 
 import com.egzosn.pay.common.api.PayMessageHandler;
-import com.egzosn.pay.common.api.PayMessageInterceptor;
 import com.egzosn.pay.common.api.PayService;
 import com.egzosn.pay.common.bean.PayMessage;
 import com.egzosn.pay.common.bean.PayOutMessage;
 import com.egzosn.pay.common.exception.PayErrorException;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
 import java.util.Map;
-
 
 /**
  * 支付宝支付回调处理器
@@ -19,18 +16,16 @@ import java.util.Map;
  *
  */
 @Component
-@Slf4j
 public class AliPayMessageHandler implements PayMessageHandler {
+
+
+
 
 
     @Override
     public PayOutMessage handle(PayMessage payMessage, Map<String, Object> context, PayService payService) throws PayErrorException {
         //com.egzosn.pay.demo.entity.PayType.getPayService()#48
         Object payId = payService.getPayConfigStorage().getAttach();
-        if (payId == null) {
-            log.error("[支付宝回调],原因:未获取payId={}",payId);
-            return payService.getPayOutMessage("fail", "失败");
-        }
 
         Map<String, Object> message = payMessage.getPayMessage();
         //交易状态

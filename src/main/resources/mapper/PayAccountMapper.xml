@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.aojing.paytest.mapper.PayAccountMapper" >
+  <resultMap id="BaseResultMap" type="com.aojing.paytest.pojo.ApyAccount" >
+    <id column="pay_id" property="payId" jdbcType="INTEGER" />
+    <result column="partner" property="partner" jdbcType="VARCHAR" />
+    <result column="appid" property="appid" jdbcType="VARCHAR" />
+    <result column="private_key" property="privateKey" jdbcType="VARCHAR" />
+    <result column="public_key" property="publicKey" jdbcType="VARCHAR" />
+    <result column="notify_url" property="notifyUrl" jdbcType="VARCHAR" />
+    <result column="return_url" property="returnUrl" jdbcType="VARCHAR" />
+    <result column="seller" property="seller" jdbcType="VARCHAR" />
+    <result column="keystore_path" property="keystorePath" jdbcType="VARCHAR" />
+    <result column="store_password" property="storePassword" jdbcType="VARCHAR" />
+    <result column="sign_type" property="signType" jdbcType="VARCHAR" />
+    <result column="input_charset" property="inputCharset" jdbcType="VARCHAR" />
+    <result column="pay_type" property="payType" jdbcType="VARCHAR" />
+    <result column="msg_type" property="msgType" jdbcType="VARCHAR" />
+    <result column="keystore_path" property="keystorePath" jdbcType="VARCHAR" />
+    <result column="store_password" property="storePassword" jdbcType="VARCHAR" />
+    <result column="is_test" property="isTest" jdbcType="VARCHAR" />
+  </resultMap>
+
+  <sql id="Base_Column_List" >
+    pay_id, partner, appid, private_key,public_key, notify_url,
+    return_url ,seller ,keystore_path,store_password,
+    sign_type,input_charset,pay_type,msg_type,keystore_path,store_password,is_test
+
+      </sql>
+
+  <select id="findByPayId" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
+    select 
+    <include refid="Base_Column_List" />
+
+    from pay_account
+    where pay_id = #{id,jdbcType=INTEGER}
+  </select>
+
+</mapper>

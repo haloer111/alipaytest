@@ -65,7 +65,7 @@ public class OrderController {
 
     @PostConstruct
     public void init() {
-        AliPayConfigStorage aliPayConfigStorage = new AliPayConfigStorage();
+       /* AliPayConfigStorage aliPayConfigStorage = new AliPayConfigStorage();
         aliPayConfigStorage.setPid(zfbInfoProperties.getPid());
         aliPayConfigStorage.setAppId(zfbInfoProperties.getAppid());
         aliPayConfigStorage.setKeyPublic(
@@ -89,7 +89,7 @@ public class OrderController {
         //增加支付回调消息拦截器
         service.addPayMessageInterceptor(new AliPayMessageInterceptor());
         //设置回调消息处理
-        service.setPayMessageHandler(spring.getBean(AliPayMessageHandler.class));
+        service.setPayMessageHandler(spring.getBean(AliPayMessageHandler.class));*/
     }
 
     /**
