@@ -117,6 +117,7 @@ public class OrderController {
     }
 
 
+
     /**
      * 查询
      *
@@ -189,7 +190,7 @@ public class OrderController {
         refundOrder.setTotalAmount(new BigDecimal("0.01"));
         refundOrder.setOrderDate(new Date());
         refundOrder.setCurType(CurType.CNY);
-        refundOrder.setDescription("葛潇测试退款");
+        refundOrder.setDescription("葛潇测试退款!!");
 
         Map result = service.refund(refundOrder);
         log.info("[支付宝退款] 结果:{}",result);
