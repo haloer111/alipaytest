@@ -38,7 +38,7 @@ public class AliPayMessageHandler implements PayMessageHandler {
         //交易完成
         if ("TRADE_SUCCESS".equals(trade_status) || "TRADE_FINISHED".equals(trade_status)) {
 
-            BigDecimal payAmount = new BigDecimal((String) message.get("total_fee"));
+            BigDecimal payAmount = new BigDecimal((String) message.get("total_amount"));
 
             return payService.getPayOutMessage("success", "成功");
 

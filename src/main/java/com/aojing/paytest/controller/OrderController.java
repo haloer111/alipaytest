@@ -108,7 +108,7 @@ public class OrderController {
         payOrder.setSubject("葛潇订单title");
         payOrder.setBody("葛潇测试");
         payOrder.setPrice(new BigDecimal("0.01"));
-        payOrder.setOutTradeNo("1492091089753");
+        payOrder.setOutTradeNo("1492491089753");
         payOrder.setTransactionType(AliTransactionType.SWEEPPAY);
 
         ImageIO.write(service.genQrPay(
