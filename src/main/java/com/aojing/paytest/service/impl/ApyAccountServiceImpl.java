@@ -1,9 +1,11 @@
 package com.aojing.paytest.service.impl;
 
 import com.aojing.paytest.common.PayResponse;
+import com.aojing.paytest.enums.PayIdEnum;
 import com.aojing.paytest.mapper.PayAccountMapper;
 import com.aojing.paytest.pojo.ApyAccount;
 import com.aojing.paytest.service.ApyAccountService;
+import com.egzosn.pay.union.api.UnionPayConfigStorage;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.AutowireCapableBeanFactory;
 import org.springframework.stereotype.Service;
@@ -32,6 +34,13 @@ public class ApyAccountServiceImpl implements ApyAccountService {
         spring.autowireBean(payResponse);
         payResponse.init(apyAccount);
         // 查询
+
+        if(id== PayIdEnum.UNION.getCode()){
+            UnionPayConfigStorage unionPayConfigStorage =
+                    (UnionPayConfigStorage) payResponse.getStorage();
+            // 无需同步回调可不填  app填这个就可以
+            unionPayConfigStorage.setReturnUrl("http://www.pay.egzosn.com/payBack.json");
+        }
         return payResponse;
 
     }

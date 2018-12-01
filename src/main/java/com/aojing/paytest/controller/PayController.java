@@ -78,11 +78,6 @@ public class PayController {
         transactionType = UnionTransactionType.WEB.getType();
         //获取对应的支付账户操作工具（可根据账户id）
         PayResponse payResponse = service.getPayResponse(payId);
-        UnionPayConfigStorage unionPayConfigStorage =
-                (UnionPayConfigStorage) payResponse.getStorage();
-        unionPayConfigStorage.setAcpMiddleCert("D:/certs/acp_test_middle.cer");
-        unionPayConfigStorage.setAcpRootCert("D:/certs/acp_test_root.cer");
-
 
         PayOrder order = new PayOrder("订单title", "摘要", null == price ? new BigDecimal(0.01) : price,
                 UUID.randomUUID().toString().replace("-", ""),
