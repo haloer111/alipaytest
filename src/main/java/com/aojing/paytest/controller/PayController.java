@@ -72,6 +72,7 @@ public class PayController {
      * @return 跳到支付页面
      */
     @RequestMapping(value = "toPay.html", produces = "text/html;charset=UTF-8")
+    @ResponseBody
     public String toPay(HttpServletRequest request, Integer payId, String transactionType, String bankType,
                         BigDecimal price) {
         payId = 3;
